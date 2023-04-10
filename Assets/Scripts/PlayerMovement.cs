@@ -37,6 +37,11 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask whatIsGround;
     bool grounded;
 
+    [Header("Wall Running")] 
+    public float wallRunSpeed;
+    public float wallDistance;
+    public float wallRunGravityScale;
+
     [Header("Slope Handling")]
     public float maxSlopeAngle;
     private RaycastHit slopeHit;
