@@ -28,6 +28,10 @@ public class PlayerMovement : MonoBehaviour
     public float crouchYScale;
     private float startYScale;
 
+    [Header("Sliding")]
+    public float minSlideSpeed;
+    public float slideDeceleration;
+
     [Header("Keybinds")]
     public KeyCode jumpKey = KeyCode.Space;
     public KeyCode sprintKey = KeyCode.LeftShift;
@@ -43,7 +47,6 @@ public class PlayerMovement : MonoBehaviour
     public float wallDistance;
     public float wallRunGravityScale;
     public float wallRunCooldown;
-    private bool readyToWallRun;
     private RaycastHit wallHit;
 
     [Header("Slope Handling")]
@@ -67,6 +70,7 @@ public class PlayerMovement : MonoBehaviour
         walking,
         sprinting,
         crouching,
+        sliding,
         dashing,
         wallrunning,
         air
@@ -80,7 +84,6 @@ public class PlayerMovement : MonoBehaviour
         rb.freezeRotation = true;
 
         readyToJump = true;
-        readyToWallRun = true;
 
         startYScale = transform.localScale.y;
     }
@@ -140,6 +143,13 @@ public class PlayerMovement : MonoBehaviour
             state = MovementState.dashing;
             moveSpeed = dashSpeed;
         }
+        
+        // Mode - Sliding
+        else if (rb.velocity.magnitude > minSlideSpeed && Input.GetKey(crouchKey))
+        {
+            state = MovementState.sliding;
+        }
+
         // Mode - Crouching
         else if (Input.GetKey(crouchKey))
         {
@@ -161,6 +171,7 @@ public class PlayerMovement : MonoBehaviour
             moveSpeed = walkSpeed;
         }
         
+        // Mode - Wallrunning
         else if (checkWallRun())
         {
             state = MovementState.wallrunning;
@@ -182,7 +193,11 @@ public class PlayerMovement : MonoBehaviour
         {
             moveDirection = Vector3.ProjectOnPlane(moveDirection, wallHit.normal);
             rb.velocity -= Physics.gravity * ((1 - wallRunGravityScale) * Time.fixedDeltaTime);
-        } else moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
+        } else if (state == MovementState.sliding)
+        {
+            moveDirection -= moveDirection.normalized * (slideDeceleration * Time.fixedDeltaTime);
+        }
+        else moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
 
         if (OnSlope() && !exitingSlope)
         {
@@ -247,11 +262,6 @@ public class PlayerMovement : MonoBehaviour
 
         exitingSlope = false;
     }
-    
-    private void ResetWallRun()
-    {
-        readyToWallRun = true;
-    }
 
     private bool OnSlope()
     {
@@ -267,7 +277,7 @@ public class PlayerMovement : MonoBehaviour
     private bool checkWallRun()
     {
         RaycastHit hit;
-        // Check (Seems to work for both right and left for some reason, will check why later
+        // Check (Seems to work for both right and left for some reason, will check why later)
         if (Physics.Raycast(transform.position, Vector3.right, out hit, wallDistance, whatIsGround))
         {
             wallHit = hit;
