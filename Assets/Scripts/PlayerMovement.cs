@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEditor.PackageManager;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -41,6 +42,9 @@ public class PlayerMovement : MonoBehaviour
     public float wallRunSpeed;
     public float wallDistance;
     public float wallRunGravityScale;
+    public float wallRunCooldown;
+    private bool readyToWallRun;
+    private RaycastHit wallHit;
 
     [Header("Slope Handling")]
     public float maxSlopeAngle;
@@ -64,6 +68,7 @@ public class PlayerMovement : MonoBehaviour
         sprinting,
         crouching,
         dashing,
+        wallrunning,
         air
     }
     
@@ -75,6 +80,7 @@ public class PlayerMovement : MonoBehaviour
         rb.freezeRotation = true;
 
         readyToJump = true;
+        readyToWallRun = true;
 
         startYScale = transform.localScale.y;
     }
@@ -105,7 +111,7 @@ public class PlayerMovement : MonoBehaviour
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
 
-        if(Input.GetKey(jumpKey) && readyToJump && grounded)
+        if(Input.GetKey(jumpKey) && readyToJump && (grounded || state == MovementState.wallrunning))
         {
             readyToJump = false;
 
@@ -154,6 +160,12 @@ public class PlayerMovement : MonoBehaviour
             state = MovementState.walking;
             moveSpeed = walkSpeed;
         }
+        
+        else if (checkWallRun())
+        {
+            state = MovementState.wallrunning;
+            moveSpeed = wallRunSpeed;
+        }
 
         // Mode - Air
         else
@@ -165,7 +177,12 @@ public class PlayerMovement : MonoBehaviour
     private void MovePlayer()
     {
         // calculate movement direction
-        moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
+        
+        if (state == MovementState.wallrunning)
+        {
+            moveDirection = Vector3.ProjectOnPlane(moveDirection, wallHit.normal);
+            rb.velocity -= Physics.gravity * ((1 - wallRunGravityScale) * Time.fixedDeltaTime);
+        } else moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
 
         if (OnSlope() && !exitingSlope)
         {
@@ -215,13 +232,25 @@ public class PlayerMovement : MonoBehaviour
 
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
-        rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+        Vector3 jumpVector = transform.up;
+
+        if (state == MovementState.wallrunning)
+        {
+            jumpVector += wallHit.normal + Vector3.forward;
+        }
+        
+        rb.AddForce(jumpVector * jumpForce, ForceMode.Impulse);
     }
     private void ResetJump()
     {
         readyToJump = true;
 
         exitingSlope = false;
+    }
+    
+    private void ResetWallRun()
+    {
+        readyToWallRun = true;
     }
 
     private bool OnSlope()
@@ -235,6 +264,18 @@ public class PlayerMovement : MonoBehaviour
         return false;
     }
 
+    private bool checkWallRun()
+    {
+        RaycastHit hit;
+        // Check (Seems to work for both right and left for some reason, will check why later
+        if (Physics.Raycast(transform.position, Vector3.right, out hit, wallDistance, whatIsGround))
+        {
+            wallHit = hit;
+            return true;
+        }
+        return false;
+    }
+    
     private Vector3 GetSlopeMoveDirection()
     {
         return Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized;
