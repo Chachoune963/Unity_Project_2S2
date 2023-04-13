@@ -251,7 +251,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (state == MovementState.wallrunning)
         {
-            jumpVector += wallHit.normal + Vector3.forward;
+            jumpVector += wallHit.normal;
         }
         
         rb.AddForce(jumpVector * jumpForce, ForceMode.Impulse);
