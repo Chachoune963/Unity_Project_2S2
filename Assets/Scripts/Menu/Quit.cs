@@ -11,7 +11,6 @@ public class Quit : MonoBehaviour
                 UnityEditor.EditorApplication.isPlaying = false;
 #else
         Application.Quit();
-        Debug.log("Quit");
 #endif
     }
 

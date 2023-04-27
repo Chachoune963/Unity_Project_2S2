@@ -6,6 +6,9 @@ namespace Terrain
     public class SceneChangeOnCollisionScript : MonoBehaviour
     {
         public string sceneName;
+
+        public bool saveOtherScene;
+        public string otherScene;
     
         private void OnTriggerEnter(Collider other)
         {
@@ -24,7 +27,14 @@ namespace Terrain
                 return;
             }
 
-            ProgressTracker.savedScene = SceneManager.GetActiveScene().name;
+            if (saveOtherScene)
+            {
+                ProgressTracker.savedScene = otherScene;
+            }
+            else
+            {
+                ProgressTracker.savedScene = SceneManager.GetActiveScene().name;
+            }
 
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;

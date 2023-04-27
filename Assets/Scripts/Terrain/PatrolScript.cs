@@ -31,9 +31,6 @@ public class PatrolScript : MonoBehaviour
             transform.position = Vector3.MoveTowards(transform.position, positions[index].position,
                 speed * Time.deltaTime);
 
-//            transform.eulerAngles = Vector3.RotateTowards(transform.eulerAngles, positions[index].eulerAngles,
-//                speed * Time.deltaTime, 1f);
-
             if (transform.position == positions[index].position)
             {
                 index = (index + 1) % positions.Length;
@@ -41,14 +38,6 @@ public class PatrolScript : MonoBehaviour
             }
 
             yield return null;
-        }
-    }
-
-    private void OnDrawGizmos()
-    {
-        for (int i = 0; i < pathParent.childCount; ++i)
-        {
-            Gizmos.DrawWireCube(pathParent.GetChild(i).position, new Vector3(1f, 1f, 1f));
         }
     }
 }

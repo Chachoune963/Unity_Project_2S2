@@ -6,13 +6,13 @@ using UnityEngine;
 
 public class ActivateGameObjectOnCollisionScript : MonoBehaviour
 {
-    public GameObject gameObject;
+    public GameObject target;
     
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "Player")
         {
-            gameObject.SetActive(true);
+            target.SetActive(true);
         }
     }
 }

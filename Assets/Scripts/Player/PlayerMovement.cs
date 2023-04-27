@@ -45,6 +45,8 @@ public class PlayerMovement : MonoBehaviour
     public float wallDistance;
     public float wallRunGravityScale;
     public float wallRunCooldown;
+    private Vector3 lastNormal;
+    private bool canWallRunSameSurface;
     private RaycastHit wallHit;
 
     [Header("Slope Handling")]
@@ -250,6 +252,9 @@ public class PlayerMovement : MonoBehaviour
         if (state == MovementState.wallrunning)
         {
             jumpVector += wallHit.normal;
+            lastNormal = wallHit.normal;
+            canWallRunSameSurface = false;
+            Invoke(nameof(ResetWallRun), wallRunCooldown);
         }
         
         rb.AddForce(jumpVector * jumpForce, ForceMode.Impulse);
@@ -259,6 +264,11 @@ public class PlayerMovement : MonoBehaviour
         readyToJump = true;
 
         exitingSlope = false;
+    }
+
+    private void ResetWallRun()
+    {
+        canWallRunSameSurface = true;
     }
 
     private bool OnSlope()
@@ -279,6 +289,10 @@ public class PlayerMovement : MonoBehaviour
         if (Physics.Raycast(transform.position, orientation.right, out hit, wallDistance, whatIsGround)
             || Physics.Raycast(transform.position, -orientation.right, out hit, wallDistance, whatIsGround))
         {
+            if (!canWallRunSameSurface && hit.normal == lastNormal)
+            {
+                return false;
+            }
             wallHit = hit;
             return true;
         }

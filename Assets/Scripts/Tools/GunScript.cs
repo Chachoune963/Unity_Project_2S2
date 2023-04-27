@@ -1,6 +1,7 @@
 using UnityEngine;
 public class GunScript : MonoBehaviour, IUseable
 {
+    public Animator animator;
     public Transform firePoint;
     
     public void Use1()
@@ -14,6 +15,8 @@ public class GunScript : MonoBehaviour, IUseable
                 shooteable.Shoot();
             }
         }
+
+        animator.SetTrigger("Shoot");
     }
 
     public void Use2()
