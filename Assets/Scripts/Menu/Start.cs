@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 
 
-public class LoadSceneOnButtonClickScript : MonoBehaviour
+public class Start : MonoBehaviour
 {
     
     public void StartGame(){

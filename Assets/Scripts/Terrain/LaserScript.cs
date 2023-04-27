@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class LaserScript : MonoBehaviour
 {
@@ -24,10 +25,7 @@ public class LaserScript : MonoBehaviour
 
             lineRenderer.SetPositions(pos);
 
-            if (hit.collider.gameObject.tag == "Player")
-            {
-                Debug.Log("Insert death code here");
-            }
+            GameOver(hit.collider.gameObject);
         }
         else
         {
@@ -36,5 +34,19 @@ public class LaserScript : MonoBehaviour
             pos[1] = shootPoint.position + shootPoint.up * 50;
             lineRenderer.SetPositions(pos);
         }
+    }
+    
+    private void GameOver(GameObject other)
+    {
+        if (!other.CompareTag("Player"))
+        {
+            return;
+        }
+
+        ProgressTracker.savedScene = SceneManager.GetActiveScene().name;
+
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+        SceneManager.LoadScene("Lose");
     }
 }

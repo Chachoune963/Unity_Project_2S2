@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -6,6 +7,8 @@ public class LoadSceneOnButtonClickScript : MonoBehaviour
 {
     public string sceneName;
     public Button button;
+
+    public bool loadSavedScene;
 
     // Start is called before the first frame update
     private void Start()
@@ -16,6 +19,13 @@ public class LoadSceneOnButtonClickScript : MonoBehaviour
     // Update is called once per frame
     private void LoadScene()
     {
-        SceneManager.LoadScene(sceneName);
+        if (loadSavedScene && ProgressTracker.savedScene != String.Empty)
+        {
+            SceneManager.LoadScene(ProgressTracker.savedScene);
+        }
+        else
+        {
+            SceneManager.LoadScene(sceneName);
+        }
     }
 }
