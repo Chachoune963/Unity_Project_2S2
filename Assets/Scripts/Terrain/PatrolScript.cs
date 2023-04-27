@@ -48,7 +48,7 @@ public class PatrolScript : MonoBehaviour
     {
         for (int i = 0; i < pathParent.childCount; ++i)
         {
-            Gizmos.DrawWireCube(pathParent.GetChild(i).position, new Vector3(0.5f, 1f, 0.5f));
+            Gizmos.DrawWireCube(pathParent.GetChild(i).position, new Vector3(1f, 1f, 1f));
         }
     }
 }

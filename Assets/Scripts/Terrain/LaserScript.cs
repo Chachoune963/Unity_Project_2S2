@@ -10,10 +10,6 @@ public class LaserScript : MonoBehaviour
     [Header("Laser System")]
     public Transform shootPoint;
     public LineRenderer lineRenderer;
-    
-    [Header("Patrol System")]
-    public Transform pathParent;
-    public float speed;
 
     // Update is called once per frame
     void Update()
@@ -35,7 +31,10 @@ public class LaserScript : MonoBehaviour
         }
         else
         {
-            lineRenderer.SetPositions(new Vector3[0]);
+            Vector3[] pos = new Vector3[2];
+            pos[0] = shootPoint.position;
+            pos[1] = shootPoint.position + shootPoint.up * 50;
+            lineRenderer.SetPositions(pos);
         }
     }
 }
